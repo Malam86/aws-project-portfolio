@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudOps Monitor Infrastructure
+
+Resources:
+  AlertTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: AlertTable
+      AttributeDefinitions:
+        - AttributeName: AlarmName
+          AttributeType: S
+      KeySchema:
+        - AttributeName: AlarmName
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  AlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: CloudOpsAlerts
+
+  AlertLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LambdaAlertRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+        - arn:aws:iam::aws:policy/AmazonSNSFullAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  CloudWatchAlertLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: CloudWatchAlertHandler
+      Handler: alert_handler.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt AlertLambdaRole.Arn
+      Environment:
+        Variables:
+          ALERT_TABLE: !Ref AlertTable
+          SNS_TOPIC_ARN: !Ref AlertTopic
+      Code:
+        S3Bucket: malam-aws-portfolio-lambda
+        S3Key: lambda/cloudwatch_alert_handler.zip
+
+Outputs:
+  AlertTableName:
+    Description: DynamoDB table for storing alerts
+    Value: !Ref AlertTable
+    Export:
+      Name: !Sub "${AWS::StackName}-AlertTableName"
+
+  AlertTopicArn:
+    Description: SNS Topic ARN for CloudOps Alerts
+    Value: !Ref AlertTopic
+    Export:
+      Name: !Sub "${AWS::StackName}-AlertTopicArn"
+
+  AlertLambdaFunctionName:
+    Description: Lambda function handling CloudWatch alerts
+    Value: !Ref CloudWatchAlertLambda
+    Export:
+      Name: !Sub "${AWS::StackName}-AlertLambdaFunctionName"
+
+  AlertLambdaRoleName:
+    Description: IAM Role used by the Lambda function
+    Value: !Ref AlertLambdaRole
+    Export:
+      Name: !Sub "${AWS::StackName}-AlertLambdaRoleName"
