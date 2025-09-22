@@ -40,6 +40,25 @@
 
 # 📡 CloudOps Monitor
 
+## 📖 Table of Contents
+- [Project Type](#project-type)  
+- [Purpose](#purpose)  
+- [AWS Services Used](#️-aws-services-used)  
+- [Implementation Overview](#-implementation-overview)  
+- [Programmatic Elements](#-programmatic-elements)  
+- [Professional Best Practices](#-professional-best-practices)  
+- [Deployment & Operations Guide](#-deployment--operations-guide)  
+  - [Deployment Steps](#-deployment-steps)  
+  - [CloudFormation Parameters](#-cloudformation-parameters)  
+  - [Architecture Overview](#-architecture-overview)  
+  - [Tagging Resources](#-️-tagging-resources)  
+  - [Test vs. Prod](#-test-vs-prod)  
+  - [Cleanup](#-cleanup)  
+  - [IAM Security Review](#-iam-security-review)  
+  - [Verification](#-verification)  
+
+---
+
 ## Project Type
 AWS Infrastructure Monitoring  
 
@@ -214,3 +233,4 @@ aws sns publish `
 
 
 You should receive an email, and the message should appear in DynamoDB.
+
